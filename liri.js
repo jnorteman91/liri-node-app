@@ -1,8 +1,8 @@
 require("dotenv").config();
 var keys = require("./keys.js");
 var request = require("request");
-// var spotify = require("node-spotify-api");
-// var spotify = new Spotify(keys.spotify);
+var spotify = require("node-spotify-api");
+var spotify = new Spotify(keys.spotify);
 
 var action = process.argv[2];
 var parameter = process.argv[3];
@@ -66,4 +66,33 @@ function bandsintown(parameter){
             }
         }
     });
-}
+};
+
+function spotifySong(parameter) {
+    var searchSong;
+    if  (parameter === undeifined) {
+        searchSong = "The Sign Ace of Base";
+
+    } else {
+        searchSong = parameter;
+    }
+
+    spotify.search({
+        type: "track",
+        query: searchSong
+    },
+    function(err, data) {
+        if (err) {
+            log("An error has occured: " + err);
+            return;
+        } else {
+            log("\n------------------------------\n");
+            log("Artist: " + data.tracks.items[0].artist[0].name);
+            log("Song: " + data.tracks.items[0].name);
+            log("Preview: " + data.tracks.items[3].preview_url);
+            log("Album: " + data.tracks.items[0].album.name);
+            log("\n------------------------------\n");
+        }
+    });
+};
+
