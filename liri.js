@@ -1,8 +1,8 @@
 require("dotenv").config();
-var keys = require("./keys.js");
+var keys = require("./keysfolder/keys.js");
 var request = require("request");
-var spotify = require("node-spotify-api");
-var spotify = new Spotify(keys.spotify);
+var Spotify = require("node-spotify-api");
+var Spotify = new Spotify(keys.spotify);
 
 var action = process.argv[2];
 var parameter = process.argv[3];
@@ -77,7 +77,7 @@ function spotifySong(parameter) {
         searchSong = parameter;
     }
 
-    spotify.search({
+    spotifySong.search({
         type: "track",
         query: searchSong
     },
@@ -96,3 +96,71 @@ function spotifySong(parameter) {
     });
 };
 
+function movieInfo(parameter) {
+
+    var searchMovie;
+    if (parameter === undefined) {
+        searchMovie = "Mr. Nobody";
+    } else {
+        searchMovie = parameter;
+    };
+
+    var queryURL = "http://www.omdbapi.com/?=" + searchMovie + "&y=&plot=short&apikey=trilogy";
+
+    request(queryURL,function(err, res, body) {
+        var bodyOf = JSON.parse(body);
+        if (!err && res.statusCode === 200) {
+            log("\n-----------------------------\n");
+            log("Title: " + bodyOf.Title);
+            log("Release Year: " + bodyOf.Year);
+            log("IMDB Rating: " + bodyOf.IMDBRating);
+            log("Rotten Tomatoes Rating: " + bodyOf.Ratings[1].Value);
+            log("Country: " + bodyOf.Country);
+            log("Language: " + bodyOf.Language);
+            log("Plot: " + bodyOf.Plot);
+            log("Actors: " + bodyOf.Actors);
+            log("\n-----------------------------\n");
+        }
+    });
+};
+
+function getRandom() {
+    fs.readfile("random.txt", "utf8", function(err, data) {
+
+        if (err) {
+            return log(err);
+        }
+
+        var dataArray = data.split(",");
+
+        if (dataArray[0] === "spotify-this-song") {
+            var  songCheck = dataArray[1].trim()slice(1, -1);
+            spotifySong(songCheck);
+        } else if (dataArray[0] === "concert-this" {
+            if (dataArray[1].charAt(1) === "") {
+                var dataLength = dataArray[1].length -1;
+                var data = dataArray[1].substring(2, dataLength);
+                console.log(data);
+                bandsintown(data);
+            } else {
+                var bandName = dataArray[1].trim();
+                console.log(bandName);
+                console.log(bandName);
+            }
+        } else if(dataArray[0] === "movie-this") {
+            var movieTitle = dataArray[1].trim().slice(1, -1);
+            movieInfo(movieTitle);
+        }
+    });
+};
+
+function log(dataLog) {
+    console.log(dataLog);
+
+    fs.appendFile("log.txt", dataLog + "\n", function(err) {
+
+        if (err) return log("There was an error logging the data: " + err);
+    });
+}
+
+switchCase();
